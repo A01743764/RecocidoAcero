@@ -5,7 +5,7 @@ Proyecto académico de Ternium. El modelo térmico anterior `difusiondecalor_R1.
 ## Estado del proyecto
 - **Etapa 1 (en revisión):** depuración conservadora de aceros CS, correlaciones, PCA y regresión múltiple.
 - **Etapa 2 (pendiente):** auditoría independiente de resultados de regresión.
-- **Etapa 3 (pendiente):** recocido simulado con función objetivo y restricciones justificadas.
+- **Etapa 3 (piloto):** recocido simulado sobre configuraciones históricas comparables.
 - **Etapa 4 (pendiente):** auditoría del optimizador y comparación con referencia.
 - **Etapa final:** integrar validación física y calidad; *no* seleccionar modelos usando el conjunto de prueba.
 
@@ -27,6 +27,20 @@ python -m src.analisis_composicion --original "data/raw/Recocido -Tec.xlsx" --sa
 El Excel original aporta la familia de cada posición. El módulo resume el tiempo neto por composición y por secuencia de abajo hacia arriba. Compara cargas solo CS con mixtas CS–MS mediante regresiones OLS con intervalos de confianza HC3. A1 estima la diferencia de medias. A3 ajusta por geometría y mes. S1 agrega el horno. Los R² y MAE de este análisis describen el ajuste sobre la muestra. Los intervalos cuantifican incertidumbre de asociaciones observacionales y las secuencias con pocas cargas se mantienen como resultados descriptivos.
 
 Los archivos Excel contienen información de planta: **no subir datos industriales, CSV individuales, archivos con identificadores de carga, ni resultados derivados sin autorización de Ternium**. El repositorio es público. `results/` y `data/` están ignorados por Git; las gráficas pueden exportarse para entrega controlada previa revisión.
+
+## Reproducir el recocido simulado
+
+Después de ejecutar etapa 1 con ambos Excel, usa sus salidas locales:
+
+```bash
+python -m src.recocido_simulado --etapa1 results/etapa1 --salida results/recocido --semilla 42 --pasos 100 --repeticiones 20 --tolerancia-peso 0.05
+```
+
+El piloto minimiza el tiempo predicho por la regresión de geometría entre las cargas de prueba de etapa 1. La referencia predeterminada tiene el número de rollos más frecuente y el peso más cercano a la mediana de ese grupo. Puedes elegir otra con `--referencia`. Las candidatas tienen el mismo número de rollos y un peso dentro de ±5 % por defecto. Esta tolerancia es un criterio exploratorio de comparación.
+
+Cada paso propone al azar otra carga candidata. El algoritmo acepta mejoras y puede aceptar aumentos de tiempo predicho con probabilidad `exp(-aumento / temperatura)`. La temperatura del algoritmo baja geométricamente de 30 a 0,3 en la escala de minutos del objetivo. La búsqueda exhaustiva calcula el mínimo predicho dentro del mismo conjunto.
+
+`resumen.json` compara la referencia, el mejor recocido y el mínimo exhaustivo. `corridas.csv` resume cada semilla, `trazas.csv` registra cada movimiento y `candidatas_PRIVADAS.csv` identifica las configuraciones evaluadas. El tiempo real de cada candidata es una observación histórica. La diferencia predicha describe el objetivo del piloto y su interpretación depende del error del modelo, la comparabilidad de cargas y la validación de calidad.
 
 ## Qué representa una observación
 Cada fila del Excel depurado es un registro de bobina y puede repetirse por mediciones de laboratorio. Se deduplica por `RH- Carga` + `RH- Posicion`, verificando que los atributos repetidos no discrepen. Una fila en la tabla modelada representa **una carga**. La variable objetivo es `RH-Tiempo Neto carga`, en minutos (no `RH-Tiempo STD Carga` ni eficiencia).
