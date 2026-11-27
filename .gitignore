@@ -1,0 +1,16 @@
+# Información de planta y resultados con potencial de identificación
+data/
+results/
+*.xlsx
+*.xls
+*.csv
+*.parquet
+*.pkl
+*.joblib
+
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+.env
+.DS_Store
