@@ -49,3 +49,11 @@ def test_sin_original_no_se_afirma_homogeneidad():
     assert len(cargas) == 2
     assert aud["homogeneidad_verificada_con_original"] is False
     assert "advertencia" in aud
+
+
+def test_original_con_familia_desconocida_no_confirma_carga_cs():
+    d, orig = ejemplo()
+    orig.loc[1, FAMILIA] = None
+    cargas, aud = reconstruir_cargas(d, orig)
+    assert cargas.empty
+    assert aud["cargas_solo_CS_confirmadas"] == 0

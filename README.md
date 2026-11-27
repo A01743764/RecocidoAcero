@@ -18,6 +18,14 @@ pytest -q
 
 O abre `notebooks/01_PCA_correlaciones_regresion_CS.ipynb` y coloca los dos Excel **localmente** en `data/raw/`. La base original es opcional para ejecutar, **pero obligatoria para afirmar que las cargas son exclusivamente CS**. Sin ella el subconjunto contiene *filas CS*, no necesariamente *cargas solo CS*.
 
+## Comparar cargas solo CS y mixtas CS–MS
+
+```bash
+python -m src.analisis_composicion --original "data/raw/Recocido -Tec.xlsx" --salida "results/composicion"
+```
+
+El Excel original aporta la familia de cada posición. El módulo resume el tiempo neto por composición y por secuencia de abajo hacia arriba. Compara cargas solo CS con mixtas CS–MS mediante regresiones OLS con intervalos de confianza HC3. A1 estima la diferencia de medias. A3 ajusta por geometría y mes. S1 agrega el horno. Los R² y MAE de este análisis describen el ajuste sobre la muestra. Los intervalos cuantifican incertidumbre de asociaciones observacionales y las secuencias con pocas cargas se mantienen como resultados descriptivos.
+
 Los archivos Excel contienen información de planta: **no subir datos industriales, CSV individuales, archivos con identificadores de carga, ni resultados derivados sin autorización de Ternium**. El repositorio es público. `results/` y `data/` están ignorados por Git; las gráficas pueden exportarse para entrega controlada previa revisión.
 
 ## Qué representa una observación
@@ -36,6 +44,7 @@ Se conserva el peso de carga registrado por planta, sin recomponerlo como suma d
 ## Organización
 - `difusiondecalor_R1.py`: simulación térmica ya existente, intacta.
 - `src/analisis_cs.py`: flujo reproducible y control de calidad.
+- `src/analisis_composicion.py`: auditoría de la base original y comparación de composiciones y secuencias.
 - `notebooks/01_PCA_correlaciones_regresion_CS.ipynb`: explicación del análisis y ejecución.
 - `tests/`: verificaciones con datos **sintéticos**, no de planta.
 - `docs/`: metodología y auditoría.

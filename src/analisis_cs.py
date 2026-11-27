@@ -118,10 +118,9 @@ def reconstruir_cargas(dep, original=None):
         o = original[[ID, FAMILIA]].copy()
         o[ID] = _normalizar_id(o[ID])
         o[FAMILIA] = o[FAMILIA].astype("string").str.strip().str.upper()
-        fam = o.dropna(subset=[ID]).groupby(ID)[FAMILIA].agg(
-            lambda x: set(x.dropna().tolist())
-        )
-        homog = set(fam[fam.map(lambda s: s == {"CS"})].index)
+        es_cs = o[FAMILIA].eq("CS").fillna(False)
+        homog = es_cs.groupby(o[ID]).all()
+        homog = homog[homog].index
         cargas = cargas.loc[cargas[ID].isin(homog)].copy()
         auditoria["homogeneidad_verificada_con_original"] = True
         auditoria["cargas_solo_CS_confirmadas"] = int(len(cargas))

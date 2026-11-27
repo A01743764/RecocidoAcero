@@ -16,4 +16,4 @@ jobs:
       - name: Pruebas unitarias sin datos industriales
         run: python -m pytest -q
       - name: Verificar sintaxis del modulo
-        run: python -m py_compile src/analisis_cs.py
+        run: python -m compileall -q src
